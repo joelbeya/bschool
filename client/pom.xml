@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>bschool</artifactId>
+    <groupId>com.bschool</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>client</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <name>BEYA School Front-End</name>
+  <description>BEYA School project made in Angular and Material Design</description>
+
+  <build>
+
+    <plugins>
+      <plugin>
+
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.7.6</version>
+
+        <configuration>
+          <workingDirectory>./</workingDirectory>
+          <nodeVersion>v15.0.1</nodeVersion>
+          <npmVersion>7.1.1</npmVersion>
+        </configuration>
+
+        <executions>
+
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm fund</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>fund</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm ci</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>ci</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>build</arguments>
+            </configuration>
+          </execution>
+
+        </executions>
+
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>./dist/client</directory>
+        <targetPath>static</targetPath>
+      </resource>
+    </resources>
+  </build>
+
+</project>
