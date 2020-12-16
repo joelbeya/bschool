@@ -17,10 +17,8 @@
   <description>BEYA School project made in Angular and Material Design</description>
 
   <build>
-
     <plugins>
       <plugin>
-
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.7.6</version>
@@ -28,7 +26,7 @@
         <configuration>
           <workingDirectory>./</workingDirectory>
           <nodeVersion>v15.0.1</nodeVersion>
-          <npmVersion>7.1.1</npmVersion>
+          <npmVersion>7.1.2</npmVersion>
         </configuration>
 
         <executions>
@@ -79,9 +77,7 @@
               <arguments>build</arguments>
             </configuration>
           </execution>
-
         </executions>
-
       </plugin>
     </plugins>
 
