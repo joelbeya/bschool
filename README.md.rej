@@ -1,0 +1,1797 @@
+--- README.md
++++ README.md
+@@ -1,161 +0,0 @@
+-npm(1) -- a JavaScript package manager
+-==============================
+-
+-[![Build Status](https://img.shields.io/travis/npm/cli/latest.svg)](https://travis-ci.org/npm/cli)
+-
+-## SYNOPSIS
+-
+-This is just enough info to get you up and running.
+-
+-Much more info will be available via `npm help` once it's installed.
+-
+-## IMPORTANT
+-
+-**You need node v6 or higher to run this program.**
+-
+-To install an old **and unsupported** version of npm that works on node v5
+-and prior, clone the git repo and dig through the old tags and branches.
+-
+-**npm is configured to use npm, Inc.'s public registry at
+-<https://registry.npmjs.org> by default.** Use of the npm public registry
+-is subject to terms of use available at <https://www.npmjs.com/policies/terms>.
+-
+-You can configure npm to use any compatible registry you
+-like, and even run your own registry. Check out the [doc on
+-registries](https://docs.npmjs.com/misc/registry).
+-
+-## Super Easy Install
+-
+-npm is bundled with [node](https://nodejs.org/en/download/).
+-
+-### Windows Computers
+-
+-[Get the MSI](https://nodejs.org/en/download/).  npm is in it.
+-
+-### Apple Macintosh Computers
+-
+-[Get the pkg](https://nodejs.org/en/download/).  npm is in it.
+-
+-### Other Sorts of Unices
+-
+-Run `make install`.  npm will be installed with node.
+-
+-If you want a more fancy pants install (a different version, customized
+-paths, etc.) then read on.
+-
+-## Fancy Install (Unix)
+-
+-There's a pretty robust install script at
+-<https://www.npmjs.com/install.sh>.  You can download that and run it.
+-
+-Here's an example using curl:
+-
+-```sh
+-curl -L https://www.npmjs.com/install.sh | sh
+-```
+-
+-### Slightly Fancier
+-
+-You can set any npm configuration params with that script:
+-
+-```sh
+-npm_config_prefix=/some/path sh install.sh
+-```
+-
+-Or, you can run it in uber-debuggery mode:
+-
+-```sh
+-npm_debug=1 sh install.sh
+-```
+-
+-### Even Fancier
+-
+-Get the code with git.  Use `make` to build the docs and do other stuff.
+-If you plan on hacking on npm, `make link` is your friend.
+-
+-If you've got the npm source code, you can also semi-permanently set
+-arbitrary config keys using the `./configure --key=val ...`, and then
+-run npm commands by doing `node bin/npm-cli.js <command> <args>`.  (This is helpful
+-for testing, or running stuff without actually installing npm itself.)
+-
+-## Windows Install or Upgrade
+-
+-Many improvements for Windows users have been made in npm 3 - you will have a better
+-experience if you run a recent version of npm. To upgrade, either use [Microsoft's
+-upgrade tool](https://github.com/felixrieseberg/npm-windows-upgrade),
+-[download a new version of Node](https://nodejs.org/en/download/),
+-or follow the Windows upgrade instructions in the
+-[Installing/upgrading npm](https://npm.community/t/installing-upgrading-npm/251/2) post.
+-
+-If that's not fancy enough for you, then you can fetch the code with
+-git, and mess with it directly.
+-
+-## Installing on Cygwin
+-
+-No.
+-
+-## Uninstalling
+-
+-So sad to see you go.
+-
+-```sh
+-sudo npm uninstall npm -g
+-```
+-Or, if that fails,
+-
+-```sh
+-sudo make uninstall
+-```
+-
+-## More Severe Uninstalling
+-
+-Usually, the above instructions are sufficient.  That will remove
+-npm, but leave behind anything you've installed.
+-
+-If you would like to remove all the packages that you have installed,
+-then you can use the `npm ls` command to find them, and then `npm rm` to
+-remove them.
+-
+-To remove cruft left behind by npm 0.x, you can use the included
+-`clean-old.sh` script file.  You can run it conveniently like this:
+-
+-```sh
+-npm explore npm -g -- sh scripts/clean-old.sh
+-```
+-
+-npm uses two configuration files, one for per-user configs, and another
+-for global (every-user) configs.  You can view them by doing:
+-
+-```sh
+-npm config get userconfig   # defaults to ~/.npmrc
+-npm config get globalconfig # defaults to /usr/local/etc/npmrc
+-```
+-
+-Uninstalling npm does not remove configuration files by default.  You
+-must remove them yourself manually if you want them gone.  Note that
+-this means that future npm installs will not remember the settings that
+-you have chosen.
+-
+-## More Docs
+-
+-Check out the [docs](https://docs.npmjs.com/).
+-
+-You can use the `npm help` command to read any of them.
+-
+-If you're a developer, and you want to use npm to publish your program,
+-you should [read this](https://docs.npmjs.com/misc/developers).
+-
+-## BUGS
+-
+-When you find issues, please report them:
+-
+-* web:
+-  <https://npm.community/c/bugs>
+-
+-Be sure to include *all* of the output from the npm command that didn't work
+-as expected.  The `npm-debug.log` file is also helpful to provide.
+-
+-## SEE ALSO
+-
+-* npm(1)
+-* npm-help(1)
+--- README.md
++++ README.md
+@@ -1,335 +0,0 @@
+-# @npmcli/arborist
+-
+-Inspect and manage `node_modules` trees.
+-
+-![a tree with the word ARBORIST superimposed on it](https://raw.githubusercontent.com/npm/arborist/main/logo.svg?sanitize=true)
+-
+-There's more documentation [in the notes
+-folder](https://github.com/npm/arborist/tree/main/notes).
+-
+-## USAGE
+-
+-```js
+-const Arborist = require('@npmcli/arborist')
+-
+-const arb = new Arborist({
+-  // options object
+-
+-  // where we're doing stuff.  defaults to cwd.
+-  path: '/path/to/package/root',
+-
+-  // url to the default registry.  defaults to npm's default registry
+-  registry: 'https://registry.npmjs.org',
+-
+-  // scopes can be mapped to a different registry
+-  '@foo:registry': 'https://registry.foo.com/',
+-
+-  // Auth can be provided in a couple of different ways.  If none are
+-  // provided, then requests are anonymous, and private packages will 404.
+-  // Arborist doesn't do anything with these, it just passes them down
+-  // the chain to pacote and npm-registry-fetch.
+-
+-  // Safest: a bearer token provided by a registry:
+-  // 1. an npm auth token, used with the default registry
+-  token: 'deadbeefcafebad',
+-  // 2. an alias for the same thing:
+-  _authToken: 'deadbeefcafebad',
+-
+-  // insecure options:
+-  // 3. basic auth, username:password, base64 encoded
+-  auth: 'aXNhYWNzOm5vdCBteSByZWFsIHBhc3N3b3Jk',
+-  // 4. username and base64 encoded password
+-  username: 'isaacs',
+-  password: 'bm90IG15IHJlYWwgcGFzc3dvcmQ=',
+-
+-  // auth configs can also be scoped to a given registry with this
+-  // rather unusual pattern:
+-  '//registry.foo.com:token': 'blahblahblah',
+-  '//basic.auth.only.foo.com:_auth': 'aXNhYWNzOm5vdCBteSByZWFsIHBhc3N3b3Jk',
+-  '//registry.foo.com:always-auth': true,
+-})
+-
+-// READING
+-
+-// returns a promise.  reads the actual contents of node_modules
+-arb.loadActual().then(tree => {
+-  // tree is also stored at arb.virtualTree
+-})
+-
+-// read just what the package-lock.json/npm-shrinkwrap says
+-// This *also* loads the yarn.lock file, but that's only relevant
+-// when building the ideal tree.
+-arb.loadVirtual().then(tree => {
+-  // tree is also stored at arb.virtualTree
+-  // now arb.virtualTree is loaded
+-  // this fails if there's no package-lock.json or package.json in the folder
+-  // note that loading this way should only be done if there's no
+-  // node_modules folder
+-})
+-
+-// OPTIMIZING AND DESIGNING
+-
+-// build an ideal tree from the package.json and various lockfiles.
+-arb.buildIdealTree(options).then(() => {
+-  // next step is to reify that ideal tree onto disk.
+-  // options can be:
+-  // rm: array of package names to remove at top level
+-  // add: Array of package specifiers to add at the top level.  Each of
+-  //   these will be resolved with pacote.manifest if the name can't be
+-  //   determined from the spec.  (Eg, `github:foo/bar` vs `foo@somespec`.)
+-  //   The dep will be saved in the location where it already exists,
+-  //   (or pkg.dependencies) unless a different saveType is specified.
+-  // saveType: Save added packages in a specific dependency set.
+-  //   - null (default) Wherever they exist already, or 'dependencies'
+-  //   - prod: definitely in 'dependencies'
+-  //   - optional: in 'optionalDependencies'
+-  //   - dev: devDependencies
+-  //   - peer: save in peerDependencies, and remove any optional flag from
+-  //     peerDependenciesMeta if one exists
+-  //   - peerOptional: save in peerDependencies, and add a
+-  //     peerDepsMeta[name].optional flag
+-  // saveBundle: add newly added deps to the bundleDependencies list
+-  // update: Either `true` to just go ahead and update everything, or an
+-  //   object with any or all of the following fields:
+-  //   - all: boolean.  set to true to just update everything
+-  //   - names: names of packages update (like `npm update foo`)
+-  // prune: boolean, default true.  Prune extraneous nodes from the tree.
+-  // preferDedupe: prefer to deduplicate packages if possible, rather than
+-  //   choosing a newer version of a dependency.  Defaults to false, ie,
+-  //   always try to get the latest and greatest deps.
+-  // legacyBundling: Nest every dep under the node requiring it, npm v2 style.
+-  //   No unnecessary deduplication.  Default false.
+-
+-  // At the end of this process, arb.idealTree is set.
+-})
+-
+-// WRITING
+-
+-// Make the idealTree be the thing that's on disk
+-arb.reify({
+-  // write the lockfile(s) back to disk, and package.json with any updates
+-  // defaults to 'true'
+-  save: true,
+-}).then(() => {
+-  // node modules has been written to match the idealTree
+-})
+-```
+-
+-## DATA STRUCTURES
+-
+-A `node_modules` tree is a logical graph of dependencies overlaid on a
+-physical tree of folders.
+-
+-A `Node` represents a package folder on disk, either at the root of the
+-package, or within a `node_modules` folder.  The physical structure of the
+-folder tree is represented by the `node.parent` reference to the containing
+-folder, and `node.children` map of nodes within its `node_modules`
+-folder, where the key in the map is the name of the folder in
+-`node_modules`, and the value is the child node.
+-
+-A node without a parent is a top of tree.
+-
+-A `Link` represents a symbolic link to a package on disk.  This can be a
+-symbolic link to a package folder within the current tree, or elsewhere on
+-disk.  The `link.target` is a reference to the actual node.  Links differ
+-from Nodes in that dependencies are resolved from the _target_ location,
+-rather than from the link location.
+-
+-An `Edge` represents a dependency relationship.  Each node has an `edgesIn`
+-set, and an `edgesOut` map.  Each edge has a `type` which specifies what
+-kind of dependency it represents: `'prod'` for regular dependencies,
+-`'peer'` for peerDependencies, `'dev'` for devDependencies, and
+-`'optional'` for optionalDependencies.  `edge.from` is a reference to the
+-node that has the dependency, and `edge.to` is a reference to the node that
+-requires the dependency.
+-
+-As nodes are moved around in the tree, the graph edges are automatically
+-updated to point at the new module resolution targets.  In other words,
+-`edge.from`, `edge.name`, and `edge.spec` are immutable; `edge.to` is
+-updated automatically when a node's parent changes.
+-
+-### class Node
+-
+-All arborist trees are `Node` objects.  A `Node` refers
+-to a package folder, which may have children in `node_modules`.
+-
+-* `node.name` The name of this node's folder in `node_modules`.
+-* `node.parent` Physical parent node in the tree.  The package in whose
+-  `node_modules` folder this package lives.  Null if node is top of tree.
+-
+-    Setting `node.parent` will automatically update `node.location` and all
+-    graph edges affected by the move.
+-
+-* `node.meta` A `Shrinkwrap` object which looks up `resolved` and
+-  `integrity` values for all modules in this tree.  Only relevant on `root`
+-  nodes.
+-
+-* `node.children` Map of packages located in the node's `node_modules`
+-  folder.
+-* `node.package` The contents of this node's `package.json` file.
+-* `node.path` File path to this package.  If the node is a link, then this
+-  is the path to the link, not to the link target.  If the node is _not_ a
+-  link, then this matches `node.realpath`.
+-* `node.realpath` The full real filepath on disk where this node lives.
+-* `node.location` A slash-normalized relative path from the root node to
+-  this node's path.
+-* `node.isLink` Whether this represents a symlink.  Always `false` for Node
+-  objects, always `true` for Link objects.
+-* `node.isRoot` True if this node is a root node.  (Ie, if `node.root ===
+-  node`.)
+-* `node.root` The root node where we are working.  If not assigned to some
+-  other value, resolves to the node itself.  (Ie, the root node's `root`
+-  property refers to itself.)
+-* `node.isTop` True if this node is the top of its tree (ie, has no
+-  `parent`, false otherwise).
+-* `node.top` The top node in this node's tree.  This will be equal to
+-  `node.root` for simple trees, but link targets will frequently be outside
+-  of (or nested somewhere within) a `node_modules` hierarchy, and so will
+-  have a different `top`.
+-* `node.dev`, `node.optional`, `node.devOptional`, `node.peer`, Indicators
+-  as to whether this node is a dev, optional, and/or peer dependency.
+-  These flags are relevant when pruning dependencies out of the tree or
+-  deciding what to reify.  See **Package Dependency Flags** below for
+-  explanations.
+-* `node.edgesOut` Edges in the dependency graph indicating nodes that this
+-  node depends on, which resolve its dependencies.
+-* `node.edgesIn` Edges in the dependency graph indicating nodes that depend
+-  on this node.
+-
+-* `extraneous` True if this package is not required by any other for any
+-  reason.  False for top of tree.
+-
+-* `node.resolve(name)`  Identify the node that will be returned when code
+-  in this package runs `require(name)`
+-
+-* `node.errors` Array of errors encountered while parsing package.json or
+-  version specifiers.
+-
+-### class Link
+-
+-Link objects represent a symbolic link within the `node_modules` folder.
+-They have most of the same properties and methods as `Node` objects, with a
+-few differences.
+-
+-* `link.target` A Node object representing the package that the link
+-  references.  If this is a Node already present within the tree, then it
+-  will be the same object.  If it's outside of the tree, then it will be
+-  treated as the top of its own tree.
+-* `link.isLink` Always true.
+-* `link.children` This is always an empty map, since links don't have their
+-  own children directly.
+-
+-### class Edge
+-
+-Edge objects represent a dependency relationship a package node to the
+-point in the tree where the dependency will be loaded.  As nodes are moved
+-within the tree, Edges automatically update to point to the appropriate
+-location.
+-
+-* `new Edge({ from, type, name, spec })`  Creates a new edge with the
+-  specified fields.  After instantiation, none of the fields can be
+-  changed directly.
+-* `edge.from` The node that has the dependency.
+-* `edge.type` The type of dependency.  One of `'prod'`, `'dev'`, `'peer'`,
+-  or `'optional'`.
+-* `edge.name` The name of the dependency.  Ie, the key in the
+-  relevant `package.json` dependencies object.
+-* `edge.spec` The specifier that is required.  This can be a version,
+-  range, tag name, git url, or tarball URL.  Any specifier allowed by npm
+-  is supported.
+-* `edge.to` Automatically set to the node in the tree that matches the
+-  `name` field.
+-* `edge.valid` True if `edge.to` satisfies the specifier.
+-* `edge.error` A string indicating the type of error if there is a problem,
+-  or `null` if it's valid.  Values, in order of precedence:
+-    * `DETACHED` Indicates that the edge has been detached from its
+-      `edge.from` node, typically because a new edge was created when a
+-      dependency specifier was modified.
+-    * `MISSING` Indicates that the dependency is unmet.  Note that this is
+-      _not_ set for unmet dependencies of the `optional` type.
+-    * `PEER LOCAL` Indicates that a `peerDependency` is found in the
+-      node's local `node_modules` folder, and the node is not the top of
+-      the tree.  This violates the `peerDependency` contract, because it
+-      means that the dependency is not a peer.
+-    * `INVALID` Indicates that the dependency does not satisfy `edge.spec`.
+-* `edge.reload()` Re-resolve to find the appropriate value for `edge.to`.
+-  Called automatically from the `Node` class when the tree is mutated.
+-
+-### Package Dependency Flags
+-
+-The dependency type of a node can be determined efficiently by looking at
+-the `dev`, `optional`, and `devOptional` flags on the node object.  These
+-are updated by arborist when necessary whenever the tree is modified in
+-such a way that the dependency graph can change, and are relevant when
+-pruning nodes from the tree.
+-
+-```
+-| extraneous | peer | dev | optional | devOptional | meaning             | prune?            |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |      |     |          |             | production dep      | never             |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|     X      | N/A  | N/A |   N/A    |     N/A     | nothing depends on  | always            |
+-|            |      |     |          |             | this, it is trash   |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |      |  X  |          |      X      | devDependency, or   | if pruning dev    |
+-|            |      |     |          | not in lock | only depended upon  |                   |
+-|            |      |     |          |             | by devDependencies  |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |      |     |    X     |      X      | optionalDependency, | if pruning        |
+-|            |      |     |          | not in lock | or only depended on | optional          |
+-|            |      |     |          |             | by optionalDeps     |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |      |  X  |    X     |      X      | Optional dependency | if pruning EITHER |
+-|            |      |     |          | not in lock | of dep(s) in the    | dev OR optional   |
+-|            |      |     |          |             | dev hierarchy       |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |      |     |          |      X      | BOTH a non-optional | if pruning BOTH   |
+-|            |      |     |          |   in lock   | dep within the dev  | dev AND optional  |
+-|            |      |     |          |             | hierarchy, AND a    |                   |
+-|            |      |     |          |             | dep within the      |                   |
+-|            |      |     |          |             | optional hierarchy  |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |  X   |     |          |             | peer dependency, or | if pruning peers  |
+-|            |      |     |          |             | only depended on by |                   |
+-|            |      |     |          |             | peer dependencies   |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |  X   |  X  |          |      X      | peer dependency of  | if pruning peer   |
+-|            |      |     |          | not in lock | dev node hierarchy  | OR dev deps       |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |  X   |     |    X     |      X      | peer dependency of  | if pruning peer   |
+-|            |      |     |          | not in lock | optional nodes, or  | OR optional deps  |
+-|            |      |     |          |             | peerOptional dep    |                   |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |  X   |  X  |    X     |      X      | peer optional deps  | if pruning peer   |
+-|            |      |     |          | not in lock | of the dev dep      | OR optional OR    |
+-|            |      |     |          |             | hierarchy           | dev               |
+-|------------+------+-----+----------+-------------+---------------------+-------------------|
+-|            |  X   |     |          |      X      | BOTH a non-optional | if pruning peers  |
+-|            |      |     |          |   in lock   | peer dep within the | OR:               |
+-|            |      |     |          |             | dev hierarchy, AND  | BOTH optional     |
+-|            |      |     |          |             | a peer optional dep | AND dev deps      |
+-+------------+------+-----+----------+-------------+---------------------+-------------------+
+-```
+-
+-* If none of these flags are set, then the node is required by the
+-  dependency and/or peerDependency hierarchy.  It should not be pruned.
+-* If _both_ `node.dev` and `node.optional` are set, then the node is an
+-  optional dependency of one of the packages in the devDependency
+-  hierarchy.  It should be pruned if _either_ dev or optional deps are
+-  being removed.
+-* If `node.dev` is set, but `node.optional` is not, then the node is
+-  required in the devDependency hierarchy.  It should be pruned if dev
+-  dependencies are being removed.
+-* If `node.optional` is set, but `node.dev` is not, then the node is
+-  required in the optionalDependency hierarchy.  It should be pruned if
+-  optional dependencies are being removed.
+-* If `node.devOptional` is set, then the node is a (non-optional)
+-  dependency within the devDependency hierarchy, _and_ a dependency
+-  within the `optionalDependency` hierarchy.  It should be pruned if
+-  _both_ dev and optional dependencies are being removed.
+-* If `node.peer` is set, then all the same semantics apply as above, except
+-  that the dep is brought in by a peer dep at some point, rather than a
+-  normal non-peer dependency.
+-
+-Note: `devOptional` is only set in the shrinkwrap/package-lock file if
+-_neither_ `dev` nor `optional` are set, as it would be redundant.
+--- README.md
++++ README.md
+@@ -1,80 +0,0 @@
+-# @npmcli/ci-detect
+-
+-Detect what kind of CI environment the program is in
+-
+-[![Build Status](https://travis-ci.com/npm/ci-detect.svg?branch=master)](https://travis-ci.com/npm/ci-detect)
+-[![Coverage Status](https://coveralls.io/repos/github/npm/ci-detect/badge.svg?branch=master)](https://coveralls.io/github/npm/ci-detect?branch=master)
+-
+-## USAGE
+-
+-```js
+-const ciDetect = require('@npmcli/ci-detect')
+-// false if not in CI
+-// otherwise, a string indicating the CI environment type
+-const inCI = ciDetect()
+-```
+-
+-## CIs Detected
+-
+-Returns one of the following strings, or `false` if none match, by looking
+-at the appropriate environment variables.
+-
+-* `'gerrit'` Gerrit
+-* `'gitlab'` GitLab
+-* `'circleci'` Circle-CI
+-* `'semaphore'` Semaphore
+-* `'drone'` Drone
+-* `'github-actions'` GitHub Actions
+-* `'tddium'` TDDium
+-* `'jenkins'` Jenkins
+-* `'bamboo'` Bamboo
+-* `'gocd'` GoCD
+-* `'wercker'` Oracle Wercker
+-* `'netlify'` Netlify
+-* `'now-github'` Zeit.co's Now for GitHub deployment service
+-* `'now-bitbucket'` Zeit.co's Now for BitBucket deployment service
+-* `'now-gitlab'` Zeit.co's Now for GitLab deployment service
+-* `'now'` Zeit.co's Now service, but not GitHub/BitBucket/GitLab
+-* `'azure-pipelines'` Azure Pipelines
+-* `'bitrise'` Bitrise
+-* `'buddy'` Buddy
+-* `'buildkite'` Buildkite
+-* `'cirrus'` Cirrus CI
+-* `'dsari'` dsari CI
+-* `'strider'` Strider CI
+-* `'taskcluster'` Mozilla Taskcluster
+-* `'hudson'` Hudson CI
+-* `'magnum'` Magnum CI
+-* `'nevercode'` Nevercode
+-* `'render'` Render CI
+-* `'sail'` Sail CI
+-* `'shippable'` Shippable
+-* `'heroku'` Heroku
+-* `'codeship'` CodeShip
+-* Anything that sets the `CI_NAME` environment variable will return the
+-  value as the result.  (This is how CodeShip is detected.)
+-* `'travis-ci'` Travis-CI - A few other CI systems set `TRAVIS=1` in the
+-  environment, because devs use that to indicate "test mode", so this one
+-  can get some false positives, and is tested later in the process to
+-  minimize this effect.
+-* `'aws-codebuild'` AWS CodeBuild
+-* `'builder'` Google Cloud Builder - This one is a bit weird.  It doesn't
+-  really set anything that can be reliably detected except
+-  `BUILDER_OUTPUT`, so it can get false positives pretty easily.
+-* `'custom'` anything else that sets `CI` environment variable to either
+-  `'1'` or `'true'`.
+-
+-## Caveats
+-
+-Note that since any program can set or unset whatever environment variables
+-they want, this is not 100% reliable.
+-
+-Also, note that if your program does different behavior in
+-CI/test/deployment than other places, then there's a good chance that
+-you're doing something wrong!
+-
+-But, for little niceties like setting colors or other output parameters, or
+-logging and that sort of non-essential thing, this module provides a way to
+-tweak without checking a bunch of things in a bunch of places.  Mostly,
+-it's a single place to keep a note of what CI system sets which environment
+-variable.
+--- README.md
++++ README.md
+@@ -1,224 +0,0 @@
+-# `@npmcli/config`
+-
+-Configuration management for the npm cli.
+-
+-This module is the spiritual descendant of
+-[`npmconf`](http://npm.im/npmconf), and the code that once lived in npm's
+-`lib/config/` folder.
+-
+-It does the management of configuration files that npm uses, but
+-importantly, does _not_ define all the configuration defaults or types, as
+-those parts make more sense to live within the npm CLI itself.
+-
+-The only exceptions:
+-
+-- The `prefix` config value has some special semantics, setting the local
+-  prefix if specified on the CLI options and not in global mode, or the
+-  global prefix otherwise.
+-- The `project` config file is loaded based on the local prefix (which can
+-  only be set by the CLI config options, and otherwise defaults to a walk
+-  up the folder tree to the first parent containing a `node_modules`
+-  folder, `package.json` file, or `package-lock.json` file.)
+-- The `userconfig` value, as set by the environment and CLI (defaulting to
+-  `~/.npmrc`, is used to load user configs.
+-- The `globalconfig` value, as set by the environment, CLI, and
+-  `userconfig` file (defaulting to `$PREFIX/etc/npmrc`) is used to load
+-  global configs.
+-- A `builtin` config, read from a `npmrc` file in the root of the npm
+-  project itself, overrides all defaults.
+-
+-The resulting hierarchy of configs:
+-
+-- CLI switches.  eg `--some-key=some-value` on the command line.  These are
+-  parsed by [`nopt`](http://npm.im/nopt), which is not a great choice, but
+-  it's the one that npm has used forever, and changing it will be
+-  difficult.
+-- Environment variables.  eg `npm_config_some_key=some_value` in the
+-  environment.  There is no way at this time to modify this prefix.
+-- INI-formatted project configs.  eg `some-key = some-value` in the
+-  `localPrefix` folder (ie, the `cwd`, or its nearest parent that contains
+-  either a `node_modules` folder or `package.json` file.)
+-- INI-formatted userconfig file.  eg `some-key = some-value` in `~/.npmrc`.
+-  The `userconfig` config value can be overridden by the `cli`, `env`, or
+-  `project` configs to change this value.
+-- INI-formatted globalconfig file.  eg `some-key = some-value` in
+-  the `globalPrefix` folder, which is inferred by looking at the location
+-  of the node executable, or the `prefix` setting in the `cli`, `env`,
+-  `project`, or `userconfig`.  The `globalconfig` value at any of those
+-  levels can override this.
+-- INI-formatted builtin config file.  eg `some-key = some-value` in
+-  `/usr/local/lib/node_modules/npm/npmrc`.  This is not configurable, and
+-  is determined by looking in the `npmPath` folder.
+-- Default values (passed in by npm when it loads this module).
+-
+-## USAGE
+-
+-```js
+-const Config = require('@npmcli/config')
+-// the types of all the configs we know about
+-const types = require('./config/types.js')
+-// default values for all the configs we know about
+-const defaults = require('./config/defaults.js')
+-// if you want -c to be short for --call and so on, define it here
+-const shorthands = require('./config/shorthands.js')
+-
+-const conf = new Config({
+-  // path to the npm module being run
+-  npmPath: resolve(__dirname, '..'),
+-  types,
+-  shorthands,
+-  defaults,
+-  // optional, defaults to process.argv
+-  argv: process.argv,
+-  // optional, defaults to process.env
+-  env: process.env,
+-  // optional, defaults to process.execPath
+-  execPath: process.execPath,
+-  // optional, defaults to process.platform
+-  platform: process.platform,
+-  // optional, defaults to process.cwd()
+-  cwd: process.cwd(),
+-  // optional, defaults to emitting 'log' events on process object
+-  // only silly, verbose, warn, and error are logged by this module
+-  log: require('npmlog')
+-})
+-
+-// returns a promise that fails if config loading fails, and
+-// resolves when the config object is ready for action
+-conf.load().then(() => {
+-  console.log('loaded ok! some-key = ' + conf.get('some-key'))
+-}).catch(er => {
+-  console.error('error loading configs!', er)
+-})
+-```
+-
+-## API
+-
+-The `Config` class is the sole export.
+-
+-```js
+-const Config = require('@npmcli/config')
+-```
+-
+-### static `Config.typeDefs`
+-
+-The type definitions passed to `nopt` for CLI option parsing and known
+-configuration validation.
+-
+-### constructor `new Config(options)`
+-
+-Options:
+-
+-- `types` Types of all known config values.  Note that some are effectively
+-  given semantic value in the config loading process itself.
+-- `shorthands` An object mapping a shorthand value to an array of CLI
+-  arguments that replace it.
+-- `defaults` Default values for each of the known configuration keys.
+-  These should be defined for all configs given a type, and must be valid.
+-- `npmPath` The path to the `npm` module, for loading the `builtin` config
+-  file.
+-- `cwd` Optional, defaults to `process.cwd()`, used for inferring the
+-  `localPrefix` and loading the `project` config.
+-- `platform` Optional, defaults to `process.platform`.  Used when inferring
+-  the `globalPrefix` from the `execPath`, since this is done diferently on
+-  Windows.
+-- `execPath` Optional, defaults to `process.execPath`.  Used to infer the
+-  `globalPrefix`.
+-- `log` Optional, the object used to log debug messages, warnings, and
+-  errors.  Defaults to emitting on the `process` object.
+-- `env` Optional, defaults to `process.env`.  Source of the environment
+-  variables for configuration.
+-- `argv` Optional, defaults to `process.argv`.  Source of the CLI options
+-  used for configuration.
+-
+-Returns a `config` object, which is not yet loaded.
+-
+-Fields:
+-
+-- `config.globalPrefix` The prefix for `global` operations.  Set by the
+-  `prefix` config value, or defaults based on the location of the
+-  `execPath` option.
+-- `config.localPrefix` The prefix for `local` operations.  Set by the
+-  `prefix` config value on the CLI only, or defaults to either the `cwd` or
+-  its nearest ancestor containing a `node_modules` folder or `package.json`
+-  file.
+-- `config.sources` A read-only `Map` of the file (or a comment, if no file
+-  found, or relevant) to the config level loaded from that source.
+-- `config.data` A `Map` of config level to `ConfigData` objects.  These
+-  objects should not be modified directly under any circumstances.
+-  - `source` The source where this data was loaded from.
+-  - `raw` The raw data used to generate this config data, as it was parsed
+-    initially from the environment, config file, or CLI options.
+-  - `data` The data object reflecting the inheritance of configs up to this
+-    point in the chain.
+-  - `loadError` Any errors encountered that prevented the loading of this
+-    config data.
+-- `config.list` A list sorted in priority of all the config data objects in
+-  the prototype chain.  `config.list[0]` is the `cli` level,
+-  `config.list[1]` is the `env` level, and so on.
+-- `cwd` The `cwd` param
+-- `env` The `env` param
+-- `argv` The `argv` param
+-- `execPath` The `execPath` param
+-- `platform` The `platform` param
+-- `log` The `log` param
+-- `defaults` The `defaults` param
+-- `shorthands` The `shorthands` param
+-- `types` The `types` param
+-- `npmPath` The `npmPath` param
+-- `globalPrefix` The effective `globalPrefix`
+-- `localPrefix` The effective `localPrefix`
+-- `prefix` If `config.get('global')` is true, then `globalPrefix`,
+-  otherwise `localPrefix`
+-- `home` The user's home directory, found by looking at `env.HOME` or
+-  calling `os.homedir()`.
+-- `loaded` A boolean indicating whether or not configs are loaded
+-- `valid` A getter that returns `true` if all the config objects are valid.
+-  Any data objects that have been modified with `config.set(...)` will be
+-  re-evaluated when `config.valid` is read.
+-
+-### `config.load()`
+-
+-Load configuration from the various sources of information.
+-
+-Returns a `Promise` that resolves when configuration is loaded, and fails
+-if a fatal error is encountered.
+-
+-### `config.find(key)`
+-
+-Find the effective place in the configuration levels a given key is set.
+-Returns one of: `cli`, `env`, `project`, `user`, `global`, `builtin`, or
+-`default`.
+-
+-Returns `null` if the key is not set.
+-
+-### `config.get(key, where = 'cli')`
+-
+-Load the given key from the config stack.
+-
+-### `config.set(key, value, where = 'cli')`
+-
+-Set the key to the specified value, at the specified level in the config
+-stack.
+-
+-### `config.delete(key, where = 'cli')`
+-
+-Delete the configuration key from the specified level in the config stack.
+-
+-### `config.validate(where)`
+-
+-Verify that all known configuration options are set to valid values, and
+-log a warning if they are invalid.
+-
+-If `where` is not set, then all config objects are validated.
+-
+-Returns `true` if all configs are valid.
+-
+-Note that it's usually enough (and more efficient) to just check
+-`config.valid`, since each data object is marked for re-evaluation on every
+-`config.set()` operation.
+-
+-### `config.save(where)`
+-
+-Save the config file specified by the `where` param.  Must be one of
+-`project`, `user`, `global`, `builtin`.
+--- README.md
++++ README.md
+@@ -1,157 +0,0 @@
+-# @npmcli/git
+-
+-A utility for spawning git from npm CLI contexts.
+-
+-This is _not_ an implementation of git itself, it's just a thing that
+-spawns child processes to tell the system git CLI implementation to do
+-stuff.
+-
+-## USAGE
+-
+-```js
+-const git = require('@npmcli/git')
+-git.clone('git://foo/bar.git', 'some-branch', 'some-path', opts) // clone a repo
+-  .then(() => git.spawn(['checkout', 'some-branch'], {cwd: 'bar'}))
+-  .then(() => git.spawn(['you get the idea']))
+-```
+-
+-## API
+-
+-Most methods take an options object.  Options are described below.
+-
+-### `git.spawn(args, opts = {})`
+-
+-Launch a `git` subprocess with the arguments specified.
+-
+-All the other functions call this one at some point.
+-
+-Processes are launched using
+-[`@npmcli/promise-spawn`](http://npm.im/@npmcli/promise-spawn), with the
+-`stdioString: true` option enabled by default, since git output is
+-generally in readable string format.
+-
+-Return value is a `Promise` that resolves to a result object with `{cmd,
+-args, code, signal, stdout, stderr}` members, or rejects with an error with
+-the same fields, passed back from
+-[`@npmcli/promise-spawn`](http://npm.im/@npmcli/promise-spawn).
+-
+-### `git.clone(repo, ref = 'HEAD', target = null, opts = {})` -> `Promise<sha String>`
+-
+-Clone the repository into `target` path (or the default path for the name
+-of the repository), checking out `ref`.
+-
+-Return value is the sha of the current HEAD in the locally cloned
+-repository.
+-
+-In lieu of a specific `ref`, you may also pass in a `spec` option, which is
+-a [`npm-package-arg`](http://npm.im/npm-package-arg) object for a `git`
+-package dependency reference.  In this way, you can select SemVer tags
+-within a range, or any git committish value.  For example:
+-
+-```js
+-const npa = require('npm-package-arg')
+-git.clone('git@github.com:npm/git.git', '', null, {
+-  spec: npa('github:npm/git#semver:1.x'),
+-})
+-
+-// only gitRange and gitCommittish are relevant, so this works, too
+-git.clone('git@github.com:npm/git.git', null, null, {
+-  spec: { gitRange: '1.x' }
+-})
+-```
+-
+-This will automatically do a shallow `--depth=1` clone on any hosts that
+-are known to support it.  To force a shallow or deep clone, you can set the
+-`gitShallow` option to `true` or `false` respectively.
+-
+-### `git.revs(repo, opts = {})` -> `Promise<rev doc Object>`
+-
+-Fetch a representation of all of the named references in a given
+-repository.  The resulting doc is intentionally somewhat
+-[packument](https://www.npmjs.com/package/pacote#packuments)-like, so that
+-git semver ranges can be applied using the same
+-[`npm-pick-manifest`](http://npm.im/npm-pick-manifest) logic.
+-
+-The resulting object looks like:
+-
+-```js
+-revs = {
+-  versions: {
+-    // all semver-looking tags go in here...
+-    // version: { sha, ref, rawRef, type }
+-    '1.0.0': {
+-      sha: '1bc5fba3353f8e1b56493b266bc459276ab23139',
+-      ref: 'v1.0.0',
+-      rawRef: 'refs/tags/v1.0.0',
+-      type: 'tag',
+-    },
+-  },
+-  'dist-tags': {
+-    HEAD: '1.0.0',
+-    latest: '1.0.0',
+-  },
+-  refs: {
+-    // all the advertised refs that can be cloned down remotely
+-    HEAD: { sha, ref, rawRef, type: 'head' },
+-    master: { ... },
+-    'v1.0.0': { ... },
+-    'refs/tags/v1.0.0': { ... },
+-  },
+-  shas: {
+-    // all named shas referenced above
+-    // sha: [list, of, refs]
+-    '6b2501f9183a1753027a9bf89a184b7d3d4602c7': [
+-      'HEAD',
+-      'master',
+-      'refs/heads/master',
+-    ],
+-    '1bc5fba3353f8e1b56493b266bc459276ab23139': [ 'v1.0.0', 'refs/tags/v1.0.0' ],
+-  },
+-}
+-```
+-
+-### `git.is(opts)` -> `Promise<Boolean>`
+-
+-Resolve to `true` if the path argument refers to the root of a git
+-repository.
+-
+-It does this by looking for a file in `${path}/.git/index`, which is not an
+-airtight indicator, but at least avoids being fooled by an empty directory
+-or a file named `.git`.
+-
+-### `git.find(opts)` -> `Promise<String | null>`
+-
+-Given a path, walk up the file system tree until a git repo working
+-directory is found.  Since this calls `stat` a bunch of times, it's
+-probably best to only call it if you're reasonably sure you're likely to be
+-in a git project somewhere.
+-
+-Resolves to `null` if not in a git project.
+-
+-### `git.isClean(opts = {})` -> `Promise<Boolean>`
+-
+-Return true if in a git dir, and that git dir is free of changes.  This
+-will resolve `true` if the git working dir is clean, or `false` if not, and
+-reject if the path is not within a git directory or some other error
+-occurs.
+-
+-## OPTIONS
+-
+-- `retry` An object to configure retry behavior for transient network
+-  errors with exponential backoff.
+-  - `retries`: Defaults to `opts.fetchRetries` or 2
+-  - `factor`: Defaults to `opts.fetchRetryFactor` or 10
+-  - `maxTimeout`: Defaults to `opts.fetchRetryMaxtimeout` or 60000
+-  - `minTimeout`: Defaults to `opts.fetchRetryMintimeout` or 1000
+-- `git` Path to the `git` binary to use.  Will look up the first `git` in
+-  the `PATH` if not specified.
+-- `spec` The [`npm-package-arg`](http://npm.im/npm-package-arg) specifier
+-  object for the thing being fetched (if relevant).
+-- `fakePlatform` set to a fake value of `process.platform` to use.  (Just
+-  for testing `win32` behavior on Unix, and vice versa.)
+-- `cwd` The current working dir for the git command.  Particularly for
+-  `find` and `is` and `isClean`, it's good to know that this defaults to
+-  `process.cwd()`, as one might expect.
+-- Any other options that can be passed to
+-  [`@npmcli/promise-spawn`](http://npm.im/@npmcli/promise-spawn), or
+-  `child_process.spawn()`.
+--- README.md
++++ README.md
+@@ -1,109 +0,0 @@
+-# @npmcli/installed-package-contents
+-
+-Get the list of files installed in a package in node_modules, including
+-bundled dependencies.
+-
+-This is useful if you want to remove a package node from the tree _without_
+-removing its child nodes, for example to extract a new version of the
+-dependency into place safely.
+-
+-It's sort of the reflection of [npm-packlist](http://npm.im/npm-packlist),
+-but for listing out the _installed_ files rather than the files that _will_
+-be installed.  This is of course a much simpler operation, because we don't
+-have to handle ignore files or package.json `files` lists.
+-
+-## USAGE
+-
+-```js
+-// programmatic usage
+-const pkgContents = require('@npmcli/installed-package-contents')
+-
+-pkgContents({ path: 'node_modules/foo', depth: 1 }).then(files => {
+-  // files is an array of items that need to be passed to
+-  // rimraf or moved out of the way to make the folder empty
+-  // if foo bundled dependencies, those will be included.
+-  // It will not traverse into child directories, because we set
+-  // depth:1 in the options.
+-  // If the folder doesn't exist, this returns an empty array.
+-})
+-
+-pkgContents({ path: 'node_modules/foo', depth: Infinity }).then(files => {
+-  // setting depth:Infinity tells it to keep walking forever
+-  // until it hits something that isn't a directory, so we'll
+-  // just get the list of all files, but not their containing
+-  // directories.
+-})
+-```
+-
+-As a CLI:
+-
+-```bash
+-$ installed-package-contents node_modules/bundle-some -d1
+-node_modules/.bin/some
+-node_modules/bundle-some/package.json
+-node_modules/bundle-some/node_modules/@scope/baz
+-node_modules/bundle-some/node_modules/.bin/foo
+-node_modules/bundle-some/node_modules/foo
+-```
+-
+-CLI options:
+-
+-```
+-Usage:
+-  installed-package-contents <path> [-d<n> --depth=<n>]
+-
+-Lists the files installed for a package specified by <path>.
+-
+-Options:
+-  -d<n> --depth=<n>   Provide a numeric value ("Infinity" is allowed)
+-                      to specify how deep in the file tree to traverse.
+-                      Default=1
+-  -h --help           Show this usage information
+-```
+-
+-## OPTIONS
+-
+-* `depth` Number, default `1`.  How deep to traverse through folders to get
+-    contents.  Typically you'd want to set this to either `1` (to get the
+-    surface files and folders) or `Infinity` (to get all files), but any
+-    other positive number is supported as well.  If set to `0` or a
+-    negative number, returns the path provided and (if it is a package) its
+-    set of linked bins.
+-* `path` Required.  Path to the package in `node_modules` where traversal
+-    should begin.
+-
+-## RETURN VALUE
+-
+-A Promise that resolves to an array of fully-resolved files and folders
+-matching the criteria.  This includes all bundled dependencies in
+-`node_modules`, and any linked executables in `node_modules/.bin` that the
+-package caused to be installed.
+-
+-An empty or missing package folder will return an empty array.  Empty
+-directories _within_ package contents are listed, even if the `depth`
+-argument would cause them to be traversed into.
+-
+-## CAVEAT
+-
+-If using this module to generate a list of files that should be recursively
+-removed to clear away the package, note that this will leave empty
+-directories behind in certain cases:
+-
+-- If all child packages are bundled dependencies, then the
+-    `node_modules` folder will remain.
+-- If all child packages within a given scope were bundled dependencies,
+-    then the `node_modules/@scope` folder will remain.
+-- If all linked bin scripts were removed, then an empty `node_modules/.bin`
+-    folder will remain.
+-
+-In the interest of speed and algorithmic complexity, this module does _not_
+-do a subsequent readdir to see if it would remove all directory entries,
+-though it would be easier to look at if it returned `node_modules` or
+-`.bin` in that case rather than the contents.  However, if the intent is to
+-pass these arguments to `rimraf`, it hardly makes sense to do _two_
+-`readdir` calls just so that we can have the luxury of having to make a
+-third.
+-
+-Since the primary use case is to delete a package's contents so that they
+-can be re-filled with a new version of that package, this caveat does not
+-pose a problem.  Empty directories are already ignored by both npm and git.
+--- README.md
++++ README.md
+@@ -1,83 +0,0 @@
+-# @npmcli/map-workspaces
+-
+-[![NPM version](https://img.shields.io/npm/v/@npmcli/map-workspaces)](https://www.npmjs.com/package/@npmcli/map-workspaces)
+-[![Build Status](https://img.shields.io/github/workflow/status/npm/map-workspaces/node-ci)](https://github.com/npm/map-workspaces)
+-[![License](https://img.shields.io/github/license/npm/map-workspaces)](https://github.com/npm/map-workspaces/blob/master/LICENSE)
+-
+-Retrieves a name:pathname Map for a given workspaces config.
+-
+-Long version: Reads the `workspaces` property from a valid **workspaces configuration** object and traverses the paths and globs defined there in order to find valid nested packages and return a **Map** of all found packages where keys are package names and values are folder locations.
+-
+-## Install
+-
+-`npm install map-workspaces`
+-
+-## Usage:
+-
+-```js
+-const mapWorkspaces = require('@npmcli/map-workspaces')
+-await mapWorkspaces({
+-  workspaces: {
+-    packages: [
+-      "a",
+-      "b"
+-    ]
+-  }
+-}, { cwd })
+-// ->
+-// Map {
+-//   'a': '<cwd>/a'
+-//   'b': '<cwd>/b'
+-// }
+-```
+-
+-## Examples:
+-
+-### Glob usage:
+-
+-Given a folder structure such as:
+-
+-```
+-├── package.json
+-└── apps
+-   ├── a
+-   │   └── package.json
+-   ├── b
+-   │   └── package.json
+-   └── c
+-       └── package.json
+-```
+-
+-```js
+-const mapWorkspaces = require('@npmcli/map-workspaces')
+-await mapWorkspaces({
+-  workspaces: [
+-    "apps/*"
+-  ]
+-}, { cwd })
+-// ->
+-// Map {
+-//   'a': '<cwd>/apps/a'
+-//   'b': '<cwd>/apps/b'
+-//   'c': '<cwd>/apps/c'
+-// }
+-```
+-
+-## API:
+-
+-### `mapWorkspaces(pkg, opts = {}) -> Promise<Map>`
+-
+-- `pkg`: A valid `package.json` **Object**
+-- `opts`:
+-  - `cwd`: A **String** defining the base directory to use when reading globs and paths.
+-  - `ignore`: An **Array** of paths to be ignored when using [globs](https://www.npmjs.com/package/glob) to look for nested package.
+-  - ...[Also support all other glob options](https://www.npmjs.com/package/glob#options)
+-
+-#### Returns
+-
+-A **Map** in which keys are **package names** and values are the **pathnames** for each found **workspace**.
+-
+-## LICENSE
+-
+-[ISC](./LICENSE)
+-
+--- README.md
++++ README.md
+@@ -1,289 +0,0 @@
+-# @npmcli/metavuln-calculator
+-
+-Calculate meta-vulnerabilities from package security advisories
+-
+-This is a pretty low-level package to abstract out the parts of
+-[@npmcli/arborist](http://npm.im/@npmcli/arborist) that calculate
+-metavulnerabilities from security advisories.  If you just want to get an
+-audit for a package tree, probably what you want to use is
+-`arborist.audit()`.
+-
+-## USAGE
+-
+-```js
+-const Calculator = require('@npmcli/metavuln-calculator')
+-// pass in any options for cacache and pacote
+-// see those modules for option descriptions
+-const calculator = new Calculator(options)
+-
+-// get an advisory somehow, typically by POSTing a JSON payload like:
+-// {"pkgname":["1.2.3","4.3.5", ...versions], ...packages}
+-// to /-/npm/v1/security/advisories/bulk
+-// to get a payload response like:
+-// {
+-//   "semver": [
+-//     {
+-//       "id": 31,
+-//       "url": "https://npmjs.com/advisories/31",
+-//       "title": "Regular Expression Denial of Service",
+-//       "severity": "moderate",
+-//       "vulnerable_versions": "<4.3.2"
+-//     }
+-//   ],
+-//   ...advisories
+-// }
+-const arb = new Aborist(options)
+-const tree = await arb.loadActual()
+-const advisories = await getBulkAdvisoryReportSomehow(tree)
+-
+-// then to get a comprehensive set of advisories including metavulns:
+-const set = new Set()
+-for (const [name, advisory] of Object.entries(advisories)) {
+-  // make sure we have the advisories loaded with latest version lists
+-  set.add(await calculator.calculate(name, {advisory}))
+-}
+-
+-for (const vuln of set) {
+-  for (const node of tree.inventory.query('name', vuln.name)) {
+-    // not vulnerable, just keep looking
+-    if (!vuln.testVersion(node.version))
+-      continue
+-    for (const { from: dep, spec } of node.edgesIn) {
+-      const metaAdvisory = await calculator.calculate(dep.name, vuln)
+-      if (metaAdvisory.testVersion(dep.version, spec)) {
+-        set.add(metaAdvisory)
+-      }
+-    }
+-  }
+-}
+-```
+-
+-## API
+-
+-### Class: Advisory
+-
+-The `Calculator.calculate` method returns a Promise that resolves to a
+-`Advisory` object, filled in from the cache and updated if necessary with
+-the available advisory data.
+-
+-Do not instantiate `Advisory` objects directly.  Use the `calculate()`
+-method to get one with appropriate data filled in.
+-
+-Do not mutate `Advisory` objects.  Use the supplied methods only.
+-
+-#### Fields
+-
+-- `name` The name of the package that this vulnerability is about
+-- `id` The unique cache key for this vuln or metavuln.  (See **Cache Keys**
+-  below.)
+-- `dependency` For metavulns, the dependency that causes this package to be
+-  have a vulnerability.  For advisories, the same as `name`.
+-- `type` Either `'advisory'` or `'metavuln'`, depending on the type of
+-  vulnerability that this object represents.
+-- `url` The url for the advisory (`null` for metavulns)
+-- `title` The text title of the advisory or metavuln
+-- `severity` The severity level info/low/medium/high/critical
+-- `range` The range that is vulnerable
+-- `versions` The set of available versions of the package
+-- `vulnerableVersions` The set of versions that are vulnerable
+-- `source` The numeric ID of the advisory, or the cache key of the
+-  vulnerability that causes this metavuln
+-- `updated` Boolean indicating whether this vulnerability was updated since
+-  being read from cache.
+-- `packument` The packument object for the package that this vulnerability
+-  is about.
+-
+-#### `vuln.testVersion(version, [dependencySpecifier]) -> Boolean`
+-
+-Check to see if a given version is vulnerable.  Returns `true` if the
+-version is vulnerable, and should be avoided.
+-
+-For metavulns, `dependencySpecifier` indicates the version range of the
+-source of the vulnerability, which the module depends on.  If not provided,
+-will attempt to read from the packument.  If not provided, and unable to
+-read from the packument, then `true` is returned, indicating that the (not
+-installable) package version should be avoided.
+-
+-#### Cache Keys
+-
+-The cache keys are calculated by hashing together the `source` and `name`
+-fields, prefixing with the string `'security-advisory:'` and the name of
+-the dependency that is vulnerable.
+-
+-So, a third-level metavulnerability might have a key like:
+-
+-```
+-'security-advisory:foo:'+ hash(['foo', hash(['bar', hash(['baz', 123])])])
+-```
+-
+-Thus, the cached entry with this key would reflect the version of `foo`
+-that is vulnerable by virtue of dependending exclusively on versions of
+-`bar` which are vulnerable by virtue of depending exclusively on versions
+-of `baz` which are vulnerable by virtue of advisory ID `123`.
+-
+-Loading advisory data entirely from cache without hitting an npm registry
+-security advisory endpoint is not supported at this time, but technically
+-possible, and likely to come in a future version of this library.
+-
+-### `calculator = new Calculator(options)`
+-
+-Options object is used for `cacache` and `pacote` calls.
+-
+-### `calculator.calculate(name, source)`
+-
+-- `name` The name of the package that the advisory is about
+-- `source` Advisory object from the npm security endpoint, or a `Advisory`
+-  object returned by a previous call to the `calculate()` method.
+-  "Advisory" objects need to have:
+-  - `id` id of the advisory or Advisory object
+-  - `vulnerable_versions` range of versions affected
+-  - `url`
+-  - `title`
+-  - `severity`
+-
+-Fetches the packument and returns a Promise that resolves to a
+-vulnerability object described above.
+-
+-Will perform required I/O to fetch package metadata from registry and
+-read from cache.  Advisory information written back to cache.
+-
+-## Dependent Version Sampling
+-
+-Typically, dependency ranges don't change very frequently, and the most
+-recent version published on a given release line is most likely to contain
+-the fix for a given vulnerability.
+-
+-So, we see things like this:
+-
+-```
+-3.0.4 - not vulnerable
+-3.0.3 - vulnerable
+-3.0.2 - vulnerable
+-3.0.1 - vulnerable
+-3.0.0 - vulnerable
+-2.3.107 - not vulnerable
+-2.3.106 - not vulnerable
+-2.3.105 - vulnerable
+-... 523 more vulnerable versions ...
+-2.0.0 - vulnerable
+-1.1.102 - not vulnerable
+-1.1.101 - vulnerable
+-... 387 more vulnerable versions ...
+-0.0.0 - vulnerable
+-```
+-
+-In order to determine which versions of a package are affected by a
+-vulnerability in a dependency, this module uses the following algorithm to
+-minimize the number of tests required by performing a binary search on each
+-version set, and presuming that versions _between_ vulnerable versions
+-within a given set are also vulnerable.
+-
+-1. Sort list of available versions by SemVer precedence
+-2. Group versions into sets based on MAJOR/MINOR versions.
+-
+-       3.0.0 - 3.0.4
+-       2.3.0 - 2.3.107
+-       2.2.0 - 2.2.43
+-       2.1.0 - 2.1.432
+-       2.0.0 - 2.0.102
+-       1.1.0 - 1.1.102
+-       1.0.0 - 1.0.157
+-       0.1.0 - 0.1.123
+-       0.0.0 - 0.0.57
+-
+-3. Test the highest and lowest in each MAJOR/MINOR set, and mark highest
+-   and lowest with known-vulnerable status.  (`(s)` means "safe" and `(v)`
+-   means "vulnerable".)
+-
+-       3.0.0(v) - 3.0.4(s)
+-       2.3.0(v) - 2.3.107(s)
+-       2.2.0(v) - 2.2.43(v)
+-       2.1.0(v) - 2.1.432(v)
+-       2.0.0(v) - 2.0.102(v)
+-       1.1.0(v) - 1.1.102(s)
+-       1.0.0(v) - 1.0.157(v)
+-       0.1.0(v) - 0.1.123(v)
+-       0.0.0(v) - 0.0.57(v)
+-
+-4. For each set of package versions:
+-
+-    1. If highest and lowest both vulnerable, assume entire set is
+-       vulnerable, and continue to next set.  Ie, in the example, throw out
+-       the following version sets:
+-
+-           2.2.0(v) - 2.2.43(v)
+-           2.1.0(v) - 2.1.432(v)
+-           2.0.0(v) - 2.0.102(v)
+-           1.0.0(v) - 1.0.157(v)
+-           0.1.0(v) - 0.1.123(v)
+-           0.0.0(v) - 0.0.57(v)
+-
+-    2. Test middle version MID in set, splitting into two sets.
+-
+-           3.0.0(v) - 3.0.2(v) - 3.0.4(s)
+-           2.3.0(v) - 2.3.54(v) - 2.3.107(s)
+-           1.1.0(v) - 1.1.51(v) - 1.1.102(s)
+-
+-    3. If any untested versions in Set(mid..highest) or Set(lowest..mid),
+-       add to list of sets to test.
+-
+-           3.0.0(v) - 3.0.2(v) <-- thrown out on next iteration
+-           3.0.2(v) - 3.0.4(s)
+-           2.3.0(v) - 2.3.54(v) <-- thrown out on next iteration
+-           2.3.54(v) - 2.3.107(s)
+-           1.1.0(v) - 1.1.51(v) <-- thrown out on next iteration
+-           1.1.51(v) - 1.1.102(s)
+-
+-When the process finishes, all versions are either confirmed safe, or
+-confirmed/assumed vulnerable, and we avoid checking large sets of versions
+-where vulnerabilities went unfixed.
+-
+-### Testing Version for MetaVuln Status
+-
+-When the dependency is in `bundleDependencies`, we treat any dependent
+-version that _may_ be vulnerable as a vulnerability.  If the dependency is
+-not in `bundleDependencies`, then we treat the dependent module as a
+-vulnerability if it can _only_ resolve to dependency versions that are
+-vulnerable.
+-
+-This relies on the reasonable assumption that the version of a bundled
+-dependency will be within the stated dependency range, and accounts for the
+-fact that we can't know ahead of time which version of a dependency may be
+-bundled.  So, we avoid versions that _may_ bundle a vulnerable dependency.
+-
+-For example:
+-
+-Package `foo` depends on package `bar` at the following version ranges:
+-
+-```
+-foo version   bar version range
+-1.0.0         ^1.2.3
+-1.0.1         ^1.2.4
+-1.0.2         ^1.2.5
+-1.1.0         ^1.3.1
+-1.1.1         ^1.3.2
+-1.1.2         ^1.3.3
+-2.0.0         ^2.0.0
+-2.0.1         ^2.0.1
+-2.0.2         ^2.0.2
+-```
+-
+-There is an advisory for `bar@1.2.4 - 1.3.2`.  So:
+-
+-```
+-foo version   vulnerable?
+-1.0.0         if bundled (can use 1.2.3, which is not vulnerable)
+-1.0.1         yes (must use ^1.2.4, entirely contained in vuln range)
+-1.0.2         yes (must use ^1.2.5, entirely contained in vuln range)
+-1.1.0         if bundled (can use 1.3.3, which is not vulnerable)
+-1.1.1         if bundled (can use 1.3.3, which is not vulnerable)
+-1.1.2         no (dep is outside of vuln range)
+-2.0.0         no (dep is outside of vuln range)
+-2.0.1         no (dep is outside of vuln range)
+-2.0.2         no (dep is outside of vuln range)
+-```
+-
+-To test a package version for metaVulnerable status, we attempt to load the
+-manifest of the dependency, using the vulnerable version set as the `avoid`
+-versions.  If we end up selecting a version that should be avoided, then
+-that means that the package is vulnerable by virtue of its dependency.
+--- README.md
++++ README.md
+@@ -1,68 +0,0 @@
+-# @npmcli/move-file
+-
+-A fork of [move-file](https://github.com/sindresorhus/move-file) with
+-compatibility with all node 10.x versions.
+-
+-> Move a file
+-
+-The built-in
+-[`fs.rename()`](https://nodejs.org/api/fs.html#fs_fs_rename_oldpath_newpath_callback)
+-is just a JavaScript wrapper for the C `rename(2)` function, which doesn't
+-support moving files across partitions or devices. This module is what you
+-would have expected `fs.rename()` to be.
+-
+-## Highlights
+-
+-- Promise API.
+-- Supports moving a file across partitions and devices.
+-- Optionally prevent overwriting an existing file.
+-- Creates non-existent destination directories for you.
+-- Support for Node versions that lack built-in recursive `fs.mkdir()`
+-
+-## Install
+-
+-```
+-$ npm install @npmcli/move-file
+-```
+-
+-## Usage
+-
+-```js
+-const moveFile = require('@npmcli/move-file');
+-
+-(async () => {
+-	await moveFile('source/unicorn.png', 'destination/unicorn.png');
+-	console.log('The file has been moved');
+-})();
+-```
+-
+-## API
+-
+-### moveFile(source, destination, options?)
+-
+-Returns a `Promise` that resolves when the file has been moved.
+-
+-### moveFile.sync(source, destination, options?)
+-
+-#### source
+-
+-Type: `string`
+-
+-File you want to move.
+-
+-#### destination
+-
+-Type: `string`
+-
+-Where you want the file moved.
+-
+-#### options
+-
+-Type: `object`
+-
+-##### overwrite
+-
+-Type: `boolean`\
+-Default: `true`
+-
+-Overwrite existing destination file.
+--- README.md
++++ README.md
+@@ -1,14 +0,0 @@
+-# @npmcli/name-from-folder
+-
+-Get the package name from a folder path, including the scope if the
+-basename of the dirname starts with `@`.
+-
+-For a path like `/x/y/z/@scope/pkg` it'll return `@scope/pkg`.  If the path
+-name is something like `/x/y/z/pkg`, then it'll return `pkg`.
+-
+-## USAGE
+-
+-```js
+-const nameFromFolder = require('@npmcli/name-from-folder')
+-const name = nameFromFolder('/some/folder/path')
+-```
+--- README.md
++++ README.md
+@@ -1,66 +0,0 @@
+-# @npmcli/promise-spawn
+-
+-Spawn processes the way the npm cli likes to do.  Give it some options,
+-it'll give you a Promise that resolves or rejects based on the results of
+-the execution.
+-
+-Note: When the current user is root, this will use
+-[`infer-owner`](http://npm.im/infer-owner) to find the owner of the current
+-working directory, and run with that effective uid/gid.  Otherwise, it runs
+-as the current user always.  (This helps prevent doing git checkouts and
+-such, and leaving root-owned files lying around in user-owned locations.)
+-
+-## USAGE
+-
+-```js
+-const promiseSpawn = require('@npmcli/promise-spawn')
+-
+-promiseSpawn('ls', [ '-laF', 'some/dir/*.js' ], {
+-  cwd: '/tmp/some/path', // defaults to process.cwd()
+-  stdioString: false, // stdout/stderr as strings rather than buffers
+-  stdio: 'pipe', // any node spawn stdio arg is valid here
+-  // any other arguments to node child_process.spawn can go here as well,
+-  // but uid/gid will be ignored and set by infer-owner if relevant.
+-}, {
+-  extra: 'things',
+-  to: 'decorate',
+-  the: 'result',
+-}).then(result => {
+-  // {code === 0, signal === null, stdout, stderr, and all the extras}
+-  console.log('ok!', result)
+-}).catch(er => {
+-  // er has all the same properties as the result, set appropriately
+-  console.error('failed!', er)
+-})
+-```
+-
+-## API
+-
+-### `promiseSpawn(cmd, args, opts, extra)` -> `Promise`
+-
+-Run the command, return a Promise that resolves/rejects based on the
+-process result.
+-
+-Result or error will be decorated with the properties in the `extra`
+-object.  You can use this to attach some helpful info about _why_ the
+-command is being run, if it makes sense for your use case.
+-
+-If `stdio` is set to anything other than `'inherit'`, then the result/error
+-will be decorated with `stdout` and `stderr` values.  If `stdioString` is
+-set to `true`, these will be strings.  Otherwise they will be Buffer
+-objects.
+-
+-Returned promise is decorated with the `stdin` stream if the process is set
+-to pipe from `stdin`.  Writing to this stream writes to the `stdin` of the
+-spawned process.
+-
+-#### Options
+-
+-- `stdioString` Boolean, default `false`.  Return stdout/stderr output as
+-  strings rather than buffers.
+-- `cwd` String, default `process.cwd()`.  Current working directory for
+-  running the script.  Also the argument to `infer-owner` to determine
+-  effective uid/gid when run as root on Unix systems.
+-- Any other options for `child_process.spawn` can be passed as well, but
+-  note that `uid` and `gid` will be overridden by the owner of the cwd when
+-  run as root on Unix systems, or `null` otherwise.
+--- README.md
++++ README.md
+@@ -1,149 +0,0 @@
+-# @npmcli/run-script
+-
+-Run a lifecycle script for a package (descendant of npm-lifecycle)
+-
+-## USAGE
+-
+-```js
+-const runScript = require('@npmcli/run-script')
+-
+-runScript({
+-  // required, the script to run
+-  event: 'install',
+-
+-  // extra args to pass to the command, defaults to []
+-  args: [],
+-
+-  // required, the folder where the package lives
+-  path: '/path/to/package/folder',
+-
+-  // optional, defaults to /bin/sh on unix, or cmd.exe on windows
+-  scriptShell: '/bin/bash',
+-
+-  // optional, defaults to false
+-  // return stdout and stderr as strings rather than buffers
+-  stdioString: true,
+-
+-  // optional, additional environment variables to add
+-  // note that process.env IS inherited by default
+-  // Always set:
+-  // - npm_package_json The package.json file in the folder
+-  // - npm_lifecycle_event The event that this is being run for
+-  // - npm_lifecycle_script The script being run
+-  // The fields described in https://github.com/npm/rfcs/pull/183
+-  env: {
+-    npm_package_from: 'foo@bar',
+-    npm_package_resolved: 'https://registry.npmjs.org/foo/-/foo-1.2.3.tgz',
+-    npm_package_integrity: 'sha512-foobarbaz',
+-  },
+-
+-  // defaults to 'pipe'.  Can also pass an array like you would to node's
+-  // exec or spawn functions.  Note that if it's anything other than
+-  // 'pipe' then the stdout/stderr values on the result will be missing.
+-  // npm cli sets this to 'inherit' for explicit run-scripts (test, etc.)
+-  // but leaves it as 'pipe' for install scripts that run in parallel.
+-  stdio: 'inherit',
+-
+-  // print the package id and script, and the command to be run, like:
+-  // > somepackage@1.2.3 postinstall
+-  // > make all-the-things
+-  // Defaults true when stdio:'inherit', otherwise suppressed
+-  banner: true,
+-})
+-  .then(({ code, signal, stdout, stderr, pkgid, path, event, script }) => {
+-    // do something with the results
+-  })
+-  .catch(er => {
+-    // command did not work.
+-    // er is decorated with:
+-    // - code
+-    // - signal
+-    // - stdout
+-    // - stderr
+-    // - path
+-    // - pkgid (name@version string)
+-    // - event
+-    // - script
+-  })
+-```
+-
+-## API
+-
+-Call the exported `runScript` function with an options object.
+-
+-Returns a promise that resolves to the result of the execution.  Promise
+-rejects if the execution fails (exits non-zero) or has any other error.
+-Rejected errors are decorated with the same values as the result object.
+-
+-If the stdio options mean that it'll have a piped stdin, then the stdin is
+-ended immediately on the child process.  If stdin is shared with the parent
+-terminal, then it is up to the user to end it, of course.
+-
+-### Results
+-
+-- `code` Process exit code
+-- `signal` Process exit signal
+-- `stdout` stdout data (Buffer, or String when `stdioString` set to true)
+-- `stderr` stderr data (Buffer, or String when `stdioString` set to true)
+-- `path` Path to the package executing its script
+-- `event` Lifecycle event being run
+-- `script` Command being run
+-
+-### Options
+-
+-- `path` Required.  The path to the package having its script run.
+-- `event` Required.  The event being executed.
+-- `args` Optional, default `[]`.  Extra arguments to pass to the script.
+-- `env` Optional, object of fields to add to the environment of the
+-  subprocess.  Note that process.env IS inherited by default These are
+-  always set:
+-  - `npm_package_json` The package.json file in the folder
+-  - `npm_lifecycle_event` The event that this is being run for
+-  - `npm_lifecycle_script` The script being run
+-  - The `package.json` fields described in
+-    [RFC183](https://github.com/npm/rfcs/pull/183/files).
+-- `scriptShell` Optional, defaults to `/bin/sh` on Unix, defaults to
+-  `env.comspec` or `cmd` on Windows.  Custom script to use to execute the
+-  command.
+-- `stdio` Optional, defaults to `'pipe'`.  The same as the `stdio` argument
+-  passed to `child_process` functions in Node.js.  Note that if a stdio
+-  output is set to anything other than `pipe`, it will not be present in
+-  the result/error object.
+-- `cmd` Optional.  Override the script from the `package.json` with
+-  something else, which will be run in an otherwise matching environment.
+-- `stdioString` Optional, defaults to `false`.  Return string values for
+-  `stderr` and `stdout` rather than Buffers.
+-- `banner` Optional, defaults to `true`.  If the `stdio` option is set to
+-  `'inherit'`, then print a banner with the package name and version, event
+-  name, and script command to be run.  Set explicitly to `false` to disable
+-  for inherited stdio.
+-
+-Note that this does _not_ run pre-event and post-event scripts.  The
+-caller has to manage that process themselves.
+-
+-## Differences from [npm-lifecycle](https://github.com/npm/npm-lifecycle)
+-
+-This is an implementation to satisfy [RFC
+-90](https://github.com/npm/rfcs/pull/90), [RFC
+-77](https://github.com/npm/rfcs/pull/77), and [RFC
+-73](https://github.com/npm/rfcs/pull/73).
+-
+-Apart from those behavior changes in npm v7, this is also just refresh of
+-the codebase, with modern coding techniques and better test coverage.
+-
+-Functionally, this means:
+-
+-- Output is not dumped to the top level process's stdio by default.
+-- Less stuff is put into the environment.
+-- It is not opinionated about logging.  (So, at least with the logging
+-  framework in npm v7.0 and before, the caller has to call
+-  `log.disableProgress()` and `log.enableProgress()` at the appropriate
+-  times, if necessary.)
+-- The directory containing the `node` executable is _never_ added to the
+-  `PATH` environment variable.  (Ie, `--scripts-prepend-node-path` is
+-  effectively always set to `false`.)  Doing so causes more unintended side
+-  effects than it ever prevented.
+-- Hook scripts are not run by this module.  If the caller wishes to run
+-  hook scripts, then they can override the default package script with an
+-  explicit `cmd` option pointing to the `node_modules/.hook/${event}`
+-  script.
+--- README.md
++++ README.md
+@@ -1,23 +0,0 @@
+-# abbrev-js
+-
+-Just like [ruby's Abbrev](http://apidock.com/ruby/Abbrev).
+-
+-Usage:
+-
+-    var abbrev = require("abbrev");
+-    abbrev("foo", "fool", "folding", "flop");
+-    
+-    // returns:
+-    { fl: 'flop'
+-    , flo: 'flop'
+-    , flop: 'flop'
+-    , fol: 'folding'
+-    , fold: 'folding'
+-    , foldi: 'folding'
+-    , foldin: 'folding'
+-    , folding: 'folding'
+-    , foo: 'foo'
+-    , fool: 'fool'
+-    }
+-
+-This is handy for command-line scripts, or other cases where you want to be able to accept shorthands.
