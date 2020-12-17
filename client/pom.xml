@@ -22,22 +22,18 @@
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.7.6</version>
-
         <configuration>
           <workingDirectory>./</workingDirectory>
           <nodeVersion>v15.0.1</nodeVersion>
           <npmVersion>7.1.2</npmVersion>
         </configuration>
-
         <executions>
-
           <execution>
             <id>install node and npm</id>
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
           </execution>
-
           <execution>
             <id>npm install</id>
             <goals>
@@ -47,7 +43,6 @@
               <arguments>install</arguments>
             </configuration>
           </execution>
-
           <execution>
             <id>npm fund</id>
             <goals>
@@ -57,7 +52,6 @@
               <arguments>fund</arguments>
             </configuration>
           </execution>
-
           <execution>
             <id>npm ci</id>
             <goals>
@@ -67,7 +61,6 @@
               <arguments>ci</arguments>
             </configuration>
           </execution>
-
           <execution>
             <id>npm build</id>
             <goals>
@@ -80,7 +73,6 @@
         </executions>
       </plugin>
     </plugins>
-
     <resources>
       <resource>
         <directory>./dist/client</directory>

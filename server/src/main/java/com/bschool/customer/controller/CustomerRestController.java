@@ -2,6 +2,7 @@ package com.bschool.customer.controller;
 
 import com.bschool.book.controller.BookRestController;
 import com.bschool.customer.Customer;
+import com.bschool.customer.SimpleMail;
 import com.bschool.customer.repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,7 @@ public class CustomerRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(value = "searchBy/{email}")
+    @GetMapping(value = "searchByEmail/{email}")
     public ResponseEntity<Customer> searchCustomerByEmail(@PathVariable String email) {
         Customer customer = customerRepository.findCustomerByEmailContainingIgnoreCase(email);
         if (customer != null) {
@@ -75,7 +76,7 @@ public class CustomerRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(value = "searchBy/{firstName}")
+    @GetMapping(value = "searchByFirstName/{firstName}")
     public ResponseEntity<List<Customer>> searchCustomerByFirstName(@PathVariable String firstName) {
         List<Customer> customers = customerRepository.findCustomerByFirstNameContainingIgnoreCase(firstName);
         if (customers != null) {
@@ -85,7 +86,7 @@ public class CustomerRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(value = "searchBy/{lastName}")
+    @GetMapping(value = "searchByLastName/{lastName}")
     public ResponseEntity<List<Customer>> searchCustomerByLastName(@PathVariable String lastName) {
         List<Customer> customers = customerRepository.findCustomerByLastNameContainingIgnoreCase(lastName);
         if (customers != null) {
@@ -107,9 +108,9 @@ public class CustomerRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(value = "sendEmailToCustomerBy/{customerId}")
-    public ResponseEntity<Boolean> sendMailToCustomer(@PathVariable Integer customerId) {
-        Customer _customer = customerRepository.findCustomerById(customerId);
+    @PutMapping(value = "sendEmail")
+    public ResponseEntity<Boolean> sendMailToCustomer(@RequestBody SimpleMail simpleMail) {
+        Customer _customer = customerRepository.findCustomerById(simpleMail.getCustomerId());
         if (_customer == null) {
             logger.error("The selected Customer for sending email is not found in the database");
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
@@ -118,11 +119,11 @@ public class CustomerRestController {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
         SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setFrom("jurenstelema@gmail.com");
+        mail.setFrom(simpleMail.MAIL_FROM);
         mail.setTo(_customer.getEmail());
         mail.setSentDate(new Date());
-        mail.setSubject("Temporary subject message");
-        mail.setText("Temporary content message");
+        mail.setSubject(simpleMail.getEmailSubject());
+        mail.setText(simpleMail.getEmailContent());
         try {
             javaMailSender.send(mail);
         } catch (MailException mailException) {

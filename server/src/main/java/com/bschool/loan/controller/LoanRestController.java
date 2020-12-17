@@ -39,7 +39,7 @@ public class LoanRestController {
         return new ResponseEntity<>(loans, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/customersLoans/{email}")
+    @GetMapping(value = "/searchCustomersLoansByEmail/{email}")
     public ResponseEntity<List<Loan>> searchAllOpenedLoansOfThisCustomer(@PathVariable String email) {
         List<Loan> loans = loanRepository.getAllOpenLoansOfThisCustomer(email, LoanStatus.OPEN);
         loans.removeAll(Collections.singleton(null));

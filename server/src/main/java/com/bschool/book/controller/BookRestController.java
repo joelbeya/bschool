@@ -63,7 +63,7 @@ public class BookRestController {
         return new ResponseEntity<>(books, HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(value = "searchBy/{title}")
+    @GetMapping(value = "searchByTitle/{title}")
     public ResponseEntity<List<Book>> searchBooksByTitle(@PathVariable String title) {
         List<Book> books = bookRepository.findByTitleContainingIgnoreCase(title);
         if (!books.isEmpty()) {
@@ -73,7 +73,7 @@ public class BookRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(value = "searchBy/{isbn}")
+    @GetMapping(value = "searchByIsbn/{isbn}")
     public ResponseEntity<Book> searchBooksByIsbn(@PathVariable String isbn) {
         Book _book = bookRepository.findByIsbnContainingIgnoreCase(isbn);
         if (_book != null) {
@@ -83,7 +83,7 @@ public class BookRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(value = "searchBy/{category}")
+    @GetMapping(value = "searchByCategory/{category}")
     public ResponseEntity<List<Book>> searchBooksByCategory(@PathVariable String category) {
         List<Book> _book = bookRepository.findByCategory(category);
         if (_book != null) {
