@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {LoanComponent} from './loan/loan.component';
+import {LoanComponent} from './loan.component';
 
 const routes: Routes = [
   {

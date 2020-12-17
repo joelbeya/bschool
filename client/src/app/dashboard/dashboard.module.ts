@@ -12,7 +12,7 @@ import {DashboardComponent} from './dashboard.component';
     DashboardRoutingModule,
   ],
   providers: [],
-  bootstrap: [DashboardComponent]
+  bootstrap: []
 })
 export class DashboardModule {
 }
